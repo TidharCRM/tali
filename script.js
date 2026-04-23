@@ -10,10 +10,8 @@
 
   const images = new Array(FRAME_COUNT);
   let loadedCount = 0;
-  let currentFrame = 0;
+  let currentFrame = FRAME_COUNT - 1;
   let rafId = null;
-  let naturalW = 0;
-  let naturalH = 0;
 
   function sizeCanvas() {
     const dpr = Math.min(window.devicePixelRatio || 1, 2);
@@ -47,9 +45,9 @@
     if (total <= 0) return;
     let progress = -rect.top / total;
     progress = Math.max(0, Math.min(1, progress));
-    const nextFrame = Math.min(
-      FRAME_COUNT - 1,
-      Math.floor(progress * (FRAME_COUNT - 1))
+    const nextFrame = Math.max(
+      0,
+      FRAME_COUNT - 1 - Math.floor(progress * (FRAME_COUNT - 1))
     );
     if (nextFrame !== currentFrame) {
       currentFrame = nextFrame;
@@ -71,11 +69,9 @@
     img.src = frameSrc(i + 1);
     img.onload = () => {
       loadedCount += 1;
-      if (i === 0) {
-        naturalW = img.naturalWidth;
-        naturalH = img.naturalHeight;
+      if (i === FRAME_COUNT - 1) {
         sizeCanvas();
-        drawFrame(0);
+        drawFrame(currentFrame);
       }
       if (loadedCount === FRAME_COUNT) {
         drawFrame(currentFrame);
@@ -95,6 +91,7 @@
   );
 
   sizeCanvas();
+  drawFrame(currentFrame);
 })();
 
 (function () {
