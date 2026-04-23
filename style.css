@@ -77,9 +77,28 @@ h2 { font-size: clamp(1.8rem, 4.5vw, 3rem); }
 h3 { font-size: clamp(1.15rem, 2.8vw, 1.45rem); }
 p { margin: 0; }
 
+.scroll-progress {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  z-index: 90;
+  background: rgba(210, 194, 176, .28);
+  pointer-events: none;
+}
+.scroll-progress__bar {
+  height: 100%;
+  width: 0%;
+  background: linear-gradient(90deg, var(--accent-strong) 0%, var(--accent) 100%);
+  transform-origin: right center;
+  transition: width .08s linear;
+  box-shadow: 0 0 8px rgba(177, 102, 63, .45);
+}
+
 .nav-wrap {
   position: sticky;
-  top: 0;
+  top: 3px;
   z-index: 60;
   backdrop-filter: blur(10px) saturate(120%);
   -webkit-backdrop-filter: blur(10px) saturate(120%);

@@ -1,3 +1,27 @@
+(function scrollProgress() {
+  const wrap = document.querySelector(".scroll-progress");
+  const bar = wrap && wrap.querySelector(".scroll-progress__bar");
+  if (!wrap || !bar) return;
+  let ticking = false;
+  function update() {
+    const doc = document.documentElement;
+    const scrollTop = window.scrollY || doc.scrollTop || 0;
+    const max = (doc.scrollHeight - window.innerHeight) || 1;
+    const pct = Math.max(0, Math.min(1, scrollTop / max));
+    bar.style.width = (pct * 100).toFixed(2) + "%";
+    wrap.setAttribute("aria-valuenow", String(Math.round(pct * 100)));
+    ticking = false;
+  }
+  function onScroll() {
+    if (ticking) return;
+    ticking = true;
+    requestAnimationFrame(update);
+  }
+  window.addEventListener("scroll", onScroll, { passive: true });
+  window.addEventListener("resize", onScroll);
+  update();
+})();
+
 (function heroFrameScrubber() {
   const section = document.querySelector(".hero-scrubber");
   const canvas = section && section.querySelector(".hero-scrubber__canvas");
