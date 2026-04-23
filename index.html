@@ -299,15 +299,48 @@
 
   <button
     class="floating-btn floating-btn--accessibility"
+    id="accessibilityToggle"
     type="button"
-    aria-label="הצהרת נגישות"
+    aria-label="Accessibility options"
+    aria-controls="accessibilityPanel"
+    aria-expanded="false"
     title="הצהרת נגישות"
-    onclick="location.href='#'"
   >
     <img src="accessibility-icon.png" alt="" aria-hidden="true" />
     <span class="sr-only">נגישות</span>
   </button>
 
-  <script src="script.js?v=4"></script>
+  <div class="a11y-overlay" id="a11yOverlay" hidden></div>
+  <section
+    class="a11y-panel"
+    id="accessibilityPanel"
+    role="dialog"
+    aria-modal="true"
+    aria-labelledby="a11yTitle"
+    aria-hidden="true"
+  >
+    <div class="a11y-panel__head">
+      <h3 id="a11yTitle">אפשרויות נגישות</h3>
+      <button type="button" class="a11y-panel__close" id="a11yClose" aria-label="סגירת חלונית נגישות">×</button>
+    </div>
+    <div class="a11y-panel__body">
+      <div class="a11y-row a11y-row--font">
+        <span>גודל טקסט</span>
+        <div class="a11y-font-buttons">
+          <button type="button" data-action="font-down">A-</button>
+          <button type="button" data-action="font-up">A+</button>
+        </div>
+      </div>
+      <button type="button" class="a11y-chip" data-toggle="highContrast" aria-pressed="false">ניגודיות גבוהה</button>
+      <button type="button" class="a11y-chip" data-toggle="grayscale" aria-pressed="false">גווני אפור</button>
+      <button type="button" class="a11y-chip" data-toggle="highlightLinks" aria-pressed="false">הדגשת קישורים</button>
+      <button type="button" class="a11y-chip" data-toggle="pauseAnimations" aria-pressed="false">עצירת אנימציות</button>
+      <button type="button" class="a11y-chip" data-toggle="readableFont" aria-pressed="false">פונט קריא</button>
+      <button type="button" class="a11y-chip" data-toggle="lineSpacing" aria-pressed="false">ריווח שורות</button>
+      <button type="button" class="a11y-reset" data-action="reset">איפוס הכל</button>
+    </div>
+  </section>
+
+  <script src="script.js?v=5"></script>
 </body>
 </html>

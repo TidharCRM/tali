@@ -176,3 +176,143 @@
 
   items.forEach((el) => io.observe(el));
 })();
+
+(function accessibilityPanel() {
+  const trigger = document.getElementById("accessibilityToggle");
+  const panel = document.getElementById("accessibilityPanel");
+  const overlay = document.getElementById("a11yOverlay");
+  const closeBtn = document.getElementById("a11yClose");
+  if (!trigger || !panel || !overlay || !closeBtn) return;
+
+  const STORAGE_KEY = "tali_a11y_preferences_v1";
+  const defaultState = {
+    fontScale: 1,
+    highContrast: false,
+    grayscale: false,
+    highlightLinks: false,
+    pauseAnimations: false,
+    readableFont: false,
+    lineSpacing: false,
+  };
+  let state = { ...defaultState };
+  let lastFocused = null;
+
+  const classMap = {
+    highContrast: "acc-high-contrast",
+    grayscale: "acc-grayscale",
+    highlightLinks: "acc-highlight-links",
+    pauseAnimations: "acc-pause-animations",
+    readableFont: "acc-readable-font",
+    lineSpacing: "acc-line-spacing",
+  };
+
+  const toggleButtons = Array.from(panel.querySelectorAll("[data-toggle]"));
+
+  function saveState() {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+  }
+
+  function loadState() {
+    try {
+      const saved = JSON.parse(localStorage.getItem(STORAGE_KEY) || "{}");
+      state = { ...defaultState, ...saved };
+    } catch {
+      state = { ...defaultState };
+    }
+  }
+
+  function applyState() {
+    document.documentElement.style.setProperty("--acc-font-scale", String(state.fontScale));
+    Object.entries(classMap).forEach(([key, className]) => {
+      document.body.classList.toggle(className, Boolean(state[key]));
+    });
+    toggleButtons.forEach((btn) => {
+      const key = btn.getAttribute("data-toggle");
+      btn.setAttribute("aria-pressed", String(Boolean(state[key])));
+    });
+  }
+
+  function clampFontScale(value) {
+    return Math.max(0.85, Math.min(1.3, Math.round(value * 100) / 100));
+  }
+
+  function openPanel() {
+    lastFocused = document.activeElement;
+    panel.hidden = false;
+    overlay.hidden = false;
+    panel.classList.add("is-open");
+    overlay.classList.add("is-open");
+    panel.setAttribute("aria-hidden", "false");
+    trigger.setAttribute("aria-expanded", "true");
+    const firstFocusable = panel.querySelector("button");
+    if (firstFocusable) firstFocusable.focus();
+  }
+
+  function closePanel() {
+    panel.classList.remove("is-open");
+    overlay.classList.remove("is-open");
+    panel.setAttribute("aria-hidden", "true");
+    trigger.setAttribute("aria-expanded", "false");
+    window.setTimeout(() => {
+      panel.hidden = true;
+      overlay.hidden = true;
+    }, 240);
+    if (lastFocused instanceof HTMLElement) lastFocused.focus();
+  }
+
+  function resetAll() {
+    state = { ...defaultState };
+    saveState();
+    applyState();
+  }
+
+  function onToggle(key) {
+    state[key] = !state[key];
+    saveState();
+    applyState();
+  }
+
+  panel.addEventListener("click", (event) => {
+    const target = event.target;
+    if (!(target instanceof HTMLElement)) return;
+
+    const action = target.getAttribute("data-action");
+    if (action === "font-up") {
+      state.fontScale = clampFontScale(state.fontScale + 0.05);
+      saveState();
+      applyState();
+      return;
+    }
+    if (action === "font-down") {
+      state.fontScale = clampFontScale(state.fontScale - 0.05);
+      saveState();
+      applyState();
+      return;
+    }
+    if (action === "reset") {
+      resetAll();
+      return;
+    }
+
+    const toggle = target.getAttribute("data-toggle");
+    if (toggle && Object.hasOwn(classMap, toggle)) {
+      onToggle(toggle);
+    }
+  });
+
+  trigger.addEventListener("click", () => {
+    if (panel.classList.contains("is-open")) closePanel();
+    else openPanel();
+  });
+  closeBtn.addEventListener("click", closePanel);
+  overlay.addEventListener("click", closePanel);
+
+  document.addEventListener("keydown", (event) => {
+    if (event.key === "Escape" && panel.classList.contains("is-open")) {
+      closePanel();
+    }
+  });
+
+  loadState();
+  applyState();
+})();
